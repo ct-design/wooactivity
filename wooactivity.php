@@ -45,6 +45,34 @@ function wooactivity_uninstall() {//TODO:
 * logic
 */
 
+function wooactivity_admin_page()
+{
+    add_menu_page(
+        'WooActivity',
+        'Woo Activity',
+        'manage_options',
+        'wooactivity',
+        'wooactivity_admin_page_html',
+        ''
+    );
+}
+function wooactivity_admin_page_html()
+{
+    // check user capabilities
+    //if (!current_user_can('manage_options')) {
+    //    return;
+    //}
+    ?>
+    <div class="wrap">
+        <h1><?= esc_html(get_admin_page_title()); ?></h1>
+            <?php
+            echo 'Administrating WooActivities.......';
+            ?>
+    </div>
+    <?php
+}
+add_action('admin_menu', 'wooactivity_admin_page');
+
 function wooactivity_initdb($wooactivity_pref_table_name = '') {
 
     global $wpdb;
