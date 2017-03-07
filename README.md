@@ -1,1 +1,2 @@
-# wooactivity
+# wooactivity 
+Monitor woocommerce users activity
