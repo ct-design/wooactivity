@@ -19,11 +19,6 @@ if ( !function_exists( 'add_action' ) ) {
 }
 
 //ensure only admin can access
-if ( ! is_admin() ) {
-     //echo "no can do baby_doll";
-     exit;
-}
-
 define( 'WOOACTIVITY_VERSION', '1.0' );
 
 //it starts!
@@ -47,14 +42,27 @@ function wooactivity_uninstall() {//TODO:
 */
 function wooactivity_admin_page()
 {
+    if ( ! is_admin() ) {
+     //echo "no can do baby_doll";
+     exit;
+    }
+    
     add_menu_page(
         'WooActivity',
-        'Woo Activity',
+        'WooActivity Settings',
         'manage_options',
         'wooactivity',
         'wooactivity_admin_page_html',
         ''
     );
+
+    add_submenu_page(
+        'wooactivity',
+        'Report',
+        'Report',
+        'manage_options',
+        'wooactivity_report',
+        'wooactivity_report_page_html');
 }
 function wooactivity_admin_page_html()
 {
@@ -89,6 +97,66 @@ function wooactivity_admin_page_html()
         </form>
     </div>
     <?php
+}
+function wooactivity_report_page_html()
+{
+    // check user can set options
+    if (!current_user_can('manage_options')) {
+        return;
+    }
+
+    
+
+
+    $args = array(
+	//'posts_per_page'   => 5,
+	//'offset'           => 0,
+	//'category'         => '',
+	//'category_name'    => '',
+	'orderby'          => 'date',
+	'order'            => 'DESC',
+	//'include'          => '',
+	//'exclude'          => '',
+	//'meta_key'         => '',
+	//'meta_value'       => '',
+	'post_type'        => 'shop_order',
+	//'post_mime_type'   => '',
+	//'post_parent'      => '',
+	//'author'	   => '',
+	//'author_name'	   => '',
+	'post_status'      => 'wc_completed',
+	'suppress_filters' => true 
+    );
+    $posts_array = get_posts( $args ); 
+    ?>
+    
+    <div class="wrap">
+        <h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+        <select id="admin_users" 
+                data-custom=""
+                name="admin_users">
+         <?php
+         $admin_users_query = new WP_User_Query( array( 'role' => 'Administrator' ) ); 
+         if ( ! empty( $admin_users_query->results ) ) {
+	            foreach ( $admin_users_query->results as $user ) {
+		        echo '<option value="' . $user->ID . '">' . $user->display_name . '</option>';
+	        }
+         }
+         ?></select>
+         <?php
+         foreach ( $posts_array as $post ) {
+             $user_info = get_userdata( $post->post_author );
+             echo "<p>Order ID: " . $post->ID;
+             echo ";; Order: " . $post->post_title;
+             echo ";; Completed by: " . $user_info->user_login;
+             echo '<p>';
+             print_r($post);
+         }
+         ?>   
+    </div>
+    <?php
+
+
 }
 add_action('admin_menu', 'wooactivity_admin_page');
 
